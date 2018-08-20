@@ -1,6 +1,7 @@
 package me.icharm.orange.Model.StockNotice;
 
 import lombok.Data;
+import me.icharm.orange.Constant.StockNotice.StockRuleStatusEnum;
 import me.icharm.orange.Model.Common.User;
 
 import javax.persistence.*;
@@ -27,21 +28,21 @@ public class StockRule {
     @ManyToOne(targetEntity = User.class)
     private Long userId;
 
-    private String openid;          /** wechat openid */
-    private String code;            /** stock code */
-    private String name;            /** stock name */
-    private String noticeName;      /** stock notice rule name */
-    private Boolean riseCheck;      /** is enable rise notice */
-    private Boolean dropCheck;      /** is enable drop notice */
-    private Integer riseNoticeCount;/** rise notice times */
-    private Integer dropNoticeCount;/** drop notice times */
-    private Integer noticeCount;    /** all notice times */
-    private Double basePrice;       /** base stock price */
-    private Double risePrice;       /** rise notice price */
-    private Double risePercent;     /** rise notice percent */
-    private Double dropPrice;       /** drop notice price */
-    private Double dropPercent;     /** drop notice percent */
-    private Integer status;         /** rule status */
+    private String openid;              /** wechat openid */
+    private String code;                /** stock code */
+    private String name;                /** stock name */
+    private String noticeName;          /** stock notice rule name */
+    private Boolean riseCheck;          /** is enable rise notice */
+    private Boolean dropCheck;          /** is enable drop notice */
+    private Integer riseNoticeCount = 0;/** rise notice times */
+    private Integer dropNoticeCount = 0;/** drop notice times */
+    private Integer noticeCount = 0;    /** all notice times */
+    private Double basePrice;           /** base stock price */
+    private Double risePrice;           /** rise notice price */
+    private Double risePercent;         /** rise notice percent */
+    private Double dropPrice;           /** drop notice price */
+    private Double dropPercent;         /** drop notice percent */
+    private Integer status = StockRuleStatusEnum.NORMAL.code; /** rule status */
     @Column(insertable = true)
     private Timestamp createdAt;
     @Column(insertable = true, updatable = true)
