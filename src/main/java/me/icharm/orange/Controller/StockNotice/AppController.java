@@ -1,17 +1,23 @@
 package me.icharm.orange.Controller.StockNotice;
 
+import me.chanjar.weixin.common.error.WxErrorException;
+import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import me.icharm.orange.Client.SinaStockClient;
 import me.icharm.orange.Constant.Common.GenericResponseEnum;
 import me.icharm.orange.Model.Dto.JsonResponse;
 import me.icharm.orange.Model.Dto.StockData;
 import me.icharm.orange.Model.StockNotice.StockRule;
 import me.icharm.orange.Repository.StockNotice.StockRuleRepository;
+import me.icharm.orange.Service.WechatService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author mylicharm
@@ -27,6 +33,21 @@ public class AppController {
 
     @Autowired
     StockRuleRepository stockRuleRepository;
+
+    @Autowired
+    WechatService wechatService;
+
+    @RequestMapping("/")
+    public void auth(HttpServletResponse response) throws IOException {
+        String url = wechatService.authRequest("http://all.icharm.me/stock-notice/index");
+        response.sendRedirect(url);
+    }
+
+    @RequestMapping("/index")
+    public WxMpUser index(@RequestParam("code") String code) throws WxErrorException {
+        return wechatService.parseAuthData(code);
+
+    }
 
     /**
      * add a new stock notice rule to database

@@ -152,7 +152,7 @@ public class SinaStockClient {
      * Get simple stock data by code
      *
      * @param code String
-     * @return StockData
+     * @return Common
      */
     public StockData stockData(String code) {
         String url = generateUrl(code);
