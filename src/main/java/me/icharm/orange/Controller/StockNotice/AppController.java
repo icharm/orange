@@ -34,21 +34,6 @@ public class AppController {
     @Autowired
     StockRuleRepository stockRuleRepository;
 
-    @Autowired
-    WechatService wechatService;
-
-    @RequestMapping("/")
-    public void auth(HttpServletResponse response) throws IOException {
-        String url = wechatService.authRequest("http://all.icharm.me/stock-notice/index");
-        response.sendRedirect(url);
-    }
-
-    @RequestMapping("/index")
-    public WxMpUser index(@RequestParam("code") String code) throws WxErrorException {
-        return wechatService.parseAuthData(code);
-
-    }
-
     /**
      * add a new stock notice rule to database
      *

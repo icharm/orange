@@ -23,17 +23,17 @@ public class SystemParameterService {
     private SystemParameterRepository spr;
 
     @Autowired
-    private StringRedisTemplate redis;
+    RedisService redisService;
 
     /**
-     * 通过Key获取系统参数表中value
-     * 此方法先查询redis缓存，不存在 再查询数据库
+     * Get system parameter by key.
+     * This method query redis service first, if not exist, then query database.
      *
      * @param key string
      * @return string
      */
     public String getValueByKey(String key) {
-        String value = redis.opsForValue().get(key);
+        String value = redisService.get(key);
         if (StringUtils.isNotBlank(value)) {
             return value;
         }
@@ -45,12 +45,12 @@ public class SystemParameterService {
         }
         value = systemParameter.getValue();
         // update redis cache
-        redis.opsForValue().set(key, value);
+        redisService.set(key, value);
         return value;
     }
 
     /**
-     * 插入一条系统参数
+     * Insert a system parameter to database
      *
      * @param systemParameter SystemParameter
      */
@@ -59,17 +59,17 @@ public class SystemParameterService {
     }
 
     /**
-     * 删除系统参数
+     * Delete system parameter.
      * 1. delete in redis cache first
      * 2. then delete in database
      *
      * @param key string
      */
     public void deleteByKey(String key) {
-        redis.delete(key);
+        redisService.delete(key);
         List<SystemParameter> systemParameters = spr.findSystemParametersByKeyword(key);
-        systemParameters.forEach(systemParameter -> {
-            spr.delete(systemParameter);
-        });
+        systemParameters.forEach(systemParameter ->
+            spr.delete(systemParameter)
+        );
     }
 }

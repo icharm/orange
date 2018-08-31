@@ -20,12 +20,16 @@ public class WechatService {
     WxMpService wxMpService;
 
     /**
-     * Jump to wechat auth page
+     * Jump to wechat auth page( Return Url of Wechat authentication server)
      *
-     * @param url
+     * @param url Wechat authorized callback address(Complete path)
      */
-    public String authRequest(String url){
+    public String generateAuthUrl(String url) {
         return wxMpService.oauth2buildAuthorizationUrl(url, WxConsts.OAuth2Scope.SNSAPI_USERINFO, null);
+    }
+
+    public String generateAuthSimpleUrl(String url) {
+        return wxMpService.oauth2buildAuthorizationUrl(url, WxConsts.OAuth2Scope.SNSAPI_BASE, null);
     }
 
     public WxMpUser parseAuthData(String authCode) throws WxErrorException {
