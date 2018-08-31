@@ -2,6 +2,9 @@ package me.icharm.orange.Model.StockNotice;
 
 import lombok.Data;
 import me.icharm.orange.Model.Common.User;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -13,6 +16,7 @@ import java.sql.Timestamp;
  */
 @Entity
 @Data
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "sn_notice_record")
 public class NoticeRecord {
 
@@ -21,15 +25,17 @@ public class NoticeRecord {
     private Long id;
 
     @ManyToOne(targetEntity = StockRule.class)
-    private Long ruleId;
+    private Long rule;
 
     @ManyToOne(targetEntity = User.class)
-    private Long userId;
+    private Long user;
 
     private Integer noticeType;                     /** notice type rise or drop */
     private String content;
-    @Column(insertable = true)
+
+    @CreatedDate
     private Timestamp createdAt;
-    @Column(insertable = true, updatable = true)
+
+    @LastModifiedDate
     private Timestamp updatedAt;
 }

@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface NoticeRecordRepository extends CrudRepository<NoticeRecord, Long> {
 
-    List<NoticeRecord> findByRuleId(Long id);
+    List<NoticeRecord> findByRule(Long id);
 
-    List<NoticeRecord> findByUserId(Long id);
+    List<NoticeRecord> findByUser(Long id);
 }
