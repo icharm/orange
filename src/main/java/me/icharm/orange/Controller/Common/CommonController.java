@@ -10,6 +10,8 @@ import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import me.icharm.orange.Client.SinaStockClient;
 import me.icharm.orange.Constant.Common.GenericResponseEnum;
 import me.icharm.orange.Constant.Common.UserRoleEnum;
+import me.icharm.orange.Constant.Common.UserStatusEnum;
+import me.icharm.orange.Controller.RootController;
 import me.icharm.orange.Model.Common.SystemParameter;
 import me.icharm.orange.Model.Common.User;
 import me.icharm.orange.Model.Dto.JsonResponse;
@@ -19,8 +21,10 @@ import me.icharm.orange.Repository.Common.UserRepository;
 import me.icharm.orange.Service.RedisService;
 import me.icharm.orange.Service.SystemService;
 import me.icharm.orange.Service.UserAuthenticationService;
+import me.icharm.orange.ViewModel.WeuiResultPage;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 
 /**
  * @author mylicharm
@@ -40,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("/common")
-public class CommonController {
+public class CommonController extends RootController {
 
     @Autowired
     SinaStockClient sinaStockClient;
@@ -58,11 +62,10 @@ public class CommonController {
     SystemService systemService;
 
     @Autowired
-    SystemParameterRepository   systemParameterRepository;
+    SystemParameterRepository systemParameterRepository;
 
     @Autowired
     RedisService redisService;
-
 
 
     /**
@@ -72,7 +75,8 @@ public class CommonController {
      * @return JsonResponse
      */
     @RequestMapping("/stock-data")
-    public JsonResponse simpleStockData(HttpServletRequest request) {
+    public JsonResponse simpleStockData(HttpServletRequest request, HttpServletResponse resp) {
+        allowCrossDomain(resp);
         JsonResponse response = new JsonResponse();
         String code = request.getParameter("code");
         if (StringUtils.isBlank(code)) {
@@ -94,41 +98,42 @@ public class CommonController {
      * @throws IOException
      */
     @RequestMapping("/wechat-auth")
-    public void auth(HttpServletResponse response) throws IOException {
-        String redirectUrl = systemService.rootPathOfServer() + "/common/login";
+    public void auth(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        allowCrossDomain(response);
+        String token = request.getParameter("token");
+        if (StringUtils.isNotBlank(token)) {
+
+            User user = authentication.findByToken(token).get();
+            user.setStatus(UserStatusEnum.SCANNED.code);
+        }
+        String redirectUrl = request.getParameter("url"); // systemService.rootPathOfServer() + "/common/login";
         String url = wxMpService.oauth2buildAuthorizationUrl(redirectUrl, WxConsts.OAuth2Scope.SNSAPI_BASE, null);
         response.sendRedirect(url);
     }
 
     /**
+     * Code换取用户信息，新用户入库。
+     *
      * @param code
      * @return
-     * @throws WxErrorException
      */
-    @RequestMapping("/login")
-    public JsonResponse login(@RequestParam("code") String code) throws WxErrorException {
-        JsonResponse response = new JsonResponse();
-        Map<String, Object> dataMap = new HashMap<>();
-
+    private User codeToUserinfo(String code) {
         try {
             WxMpOAuth2AccessToken wxMpOAuth2AccessToken = wxMpService.oauth2getAccessToken(code);
             String openid = wxMpOAuth2AccessToken.getOpenId();
-            // Determine if the user is already exists in database
+            // Determine if the User is already exists in database
             User user = userRepository.findUserByOpenid(openid);
             if (user != null) {
-                // old user
-                dataMap.put("token", authentication.login(user));
-                dataMap.put("user", user);
-                String data = JSON.toJSONString(dataMap);
-                return JsonResponse.successResponse(data);
+                // old User
+                return user;
             }
 
-            // new user
+            // new User
             // then reflesh access_token to SNSAPI_USERINFO Scope type
             wxMpOAuth2AccessToken.setScope(WxConsts.OAuth2Scope.SNSAPI_USERINFO);
             wxMpOAuth2AccessToken = wxMpService.oauth2refreshAccessToken(wxMpOAuth2AccessToken.getRefreshToken());
 
-            // query user info from wechat server
+            // query User info from wechat server
             WxMpUser wxMpUser = wxMpService.oauth2getUserInfo(wxMpOAuth2AccessToken, null);
 
             // save wchatUserinfo
@@ -136,19 +141,69 @@ public class CommonController {
             user = saveWchatUserinfo(user, wxMpUser);
 
             // login
-            dataMap.put("token", authentication.login(user));
-            dataMap.put("user", user);
-            String data = JSON.toJSONString(dataMap);
-            return JsonResponse.successResponse(data);
-
+            return user;
         } catch (Exception e) {
-            log.error("Controller.Common.login executed error.", e);
-            return JsonResponse.errorResponse(null);
+            log.error(" executed error.", e);
+            return null;
         }
     }
 
     /**
-     * Convert wechat user info to icharm user.
+     * PC扫码授权登录
+     *
+     * @param code
+     * @param resp
+     * @return view
+     */
+    @RequestMapping("/scan-login")
+    public String scanLogin(@RequestParam("code") String code, HttpServletResponse resp, ModelMap map) {
+        allowCrossDomain(resp);
+        User user = null;//codeToUserinfo(code);
+        WeuiResultPage object = new WeuiResultPage();
+        if (user == null) {
+            object.setIcon("success");
+            object.setTitle("授权成功");
+            object.setBtnPrimary("确定");
+            object.setBtnPrimaryAction("window.close();");
+        } else {
+            object.setIcon("warn");
+            object.setTitle("授权失败");
+            object.setBtnPrimary("确定");
+            object.setBtnPrimaryAction("window.close();");
+            object.setBtnDefault("重新授权");
+            object.setBtnDefaultAction("history.back();");
+        }
+        map.addAttribute("object", object);
+        return object.path;
+    }
+
+    /**
+     * 微信内跳转授权登录
+     *
+     * @param code
+     * @return
+     * @throws WxErrorException
+     */
+    @RequestMapping("/login")
+    public JsonResponse login(@RequestParam("code") String code, HttpServletResponse resp) throws WxErrorException {
+        allowCrossDomain(resp);
+        Map<String, Object> dataMap = new HashMap<>();
+
+        User user = codeToUserinfo(code);
+        if(user == null) {
+            return JsonResponse.error();
+        }
+
+        // login
+        dataMap.put("token", authentication.login(user));
+        dataMap.put("nickName", user.getNickName());
+        dataMap.put("avatar", user.getAvatar());
+        String data = JSON.toJSONString(dataMap);
+        return JsonResponse.success(data);
+    }
+
+    /**
+     * Convert wechat User info to icharm User.
      * Then save into database.
      *
      * @param user
@@ -164,8 +219,43 @@ public class CommonController {
         locMap.put("province", wxMpUser.getProvince());
         locMap.put("city", wxMpUser.getCity());
         user.setLocation(JSON.toJSONString(locMap));
-        user.setRole(UserRoleEnum.SN_USER.code);
+        user.setAuthorities(UserRoleEnum.SN_USER.code);
         return userRepository.save(user);
+    }
+
+    /**
+     * Logout, delete token in redis.
+     *
+     * @param token
+     */
+    @RequestMapping("/logout")
+    public void logout(@RequestParam("token") String token) {
+        redisService.delete(token);
+    }
+
+    /**
+     * 二维码绘制code
+     * @return
+     */
+    @RequestMapping("/qrcode")
+    public JsonResponse token(@RequestParam("code") String token) {
+        if (StringUtils.isBlank(token)) {
+            // Generate a empty user.
+            User user = new User();
+            token =  authentication.login(user);
+            return JsonResponse.success(token);
+        } else {
+            // query qrcode status
+            User user = authentication.findByToken(token).get();
+            Integer status = user.getStatus();
+            if (status >= UserStatusEnum.UNABLE.code)
+                return JsonResponse.quick(status, "success", status);
+            else if (UserStatusEnum.NORMAL.code.equals(status)) {
+                // 用户已授权登录
+                return JsonResponse.quick(status, "Has logged.", JSON.toJSONString(user));
+            }
+        }
+        return JsonResponse.error();
     }
 
 }

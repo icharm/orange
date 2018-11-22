@@ -28,7 +28,7 @@ public class StockRule {
     private Long id;
 
     /**
-     * user table 外键
+     * User table 外键
      */
     @ManyToOne(targetEntity = User.class)
     private Long user;

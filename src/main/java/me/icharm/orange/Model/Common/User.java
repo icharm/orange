@@ -33,47 +33,57 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String openid;
     /**
      * wechat openid
      */
-    private String phone;
+    private String openid;
+
     /**
      * phone number
      */
-    private String email;
+    private String phone;
+
     /**
      * email address
      */
-    private String nickName;
+    private String email;
+
     /**
      * nick name
      */
-    private String avatar;
+    private String nickName;
+
     /**
      * avatar url
      */
-    private String sex;
+    private String avatar;
+
     /**
      * sex
      */
-    private String location;
+    private String sex;
+
     /**
-     * user location
+     * User location
      */
+    private String location;
+
     private String password;
-    private String salt;
     /**
      * random str to encode password
      */
-    private String role;
+    private String salt;
+
     /**
-     * user role (Json Format)
+     * User role (Json Format)
      */
-    private Integer status = UserStatusEnum.NORMAL.code;
+    private String authorities;
+
     /**
-     * user status
+     * User status
      */
+    private Integer status = UserStatusEnum.UNABLE.code;
+
 
     @CreatedDate
     private Timestamp createdAt;
@@ -95,7 +105,7 @@ public class User implements UserDetails {
     @JsonIgnore
     @Override
     public Collection<SimpleGrantedAuthority> getAuthorities() {
-        List<String> rolelist = JSON.parseArray(role, String.class);
+        List<String> rolelist = JSON.parseArray(authorities, String.class);
         List<SimpleGrantedAuthority> authList = new ArrayList<>();
         for (String role : rolelist) {
             authList.add(new SimpleGrantedAuthority(role));
@@ -103,6 +113,21 @@ public class User implements UserDetails {
         return authList;
     }
 
+    public void setAuthorities(String role) {
+        List<String> roleList = new ArrayList<>();
+        if (StringUtils.isBlank(this.authorities)) {
+            roleList.add(role);
+            this.authorities = JSON.toJSONString(roleList);
+        } else {
+            roleList = JSON.parseArray(this.authorities, String.class);
+            // If this role existed.
+            if(!roleList.contains(role)) {
+                // don't exist
+                roleList.add(role);
+            }
+            this.authorities = JSON.toJSONString(roleList);
+        }
+    }
 
     @JsonIgnore
     @Override
@@ -141,26 +166,5 @@ public class User implements UserDetails {
         } else {
             return false;
         }
-    }
-
-    public void setRole(String role) {
-        List<String> roleList = new ArrayList<>();
-        if (StringUtils.isBlank(this.role)) {
-            roleList.add(role);
-            this.role = JSON.toJSONString(roleList);
-        } else {
-            roleList.addAll(JSON.parseArray(this.role, String.class));
-            roleList.add(role);
-            this.role = JSON.toJSONString(roleList);
-        }
-    }
-
-    public List<String> getRole(){
-        List<String> roleList = new ArrayList<>();
-        if (StringUtils.isBlank(this.role)) {
-            return roleList;
-        }
-        roleList = JSON.parseArray(this.role, String.class);
-        return roleList;
     }
 }

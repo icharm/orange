@@ -3,7 +3,7 @@ package me.icharm.orange.Service;
 //import org.springframework.stereotype.Service;
 
 /**
- * Provide user info by token
+ * Provide User info by token
  *
  * @author mylicharm
  * @email icharm.me@outlook.com
@@ -27,7 +27,7 @@ public class UserAuthenticationService {
     UserRepository userRepository;
 
     @Autowired
-    StringRedisTemplate redis;
+    RedisService redisService;
 
     /**
      * Generate token by UUID.
@@ -41,18 +41,18 @@ public class UserAuthenticationService {
         String token = UUID.randomUUID().toString();
         // Store in redis
         String jsonUser = JSON.toJSONString(user);
-        redis.opsForValue().set(token, jsonUser, 21600L); // 6 hour
+        redisService.set(token, jsonUser, 21600L); // 6 hour
         return token;
     }
 
     /**
-     * Finds a user by its dao-key.
+     * Finds a User by its dao-key.
      *
-     * @param token user dao key
+     * @param token User dao key
      * @return
      */
     public Optional<User> findByToken(String token) {
-        String jsonUser = redis.opsForValue().get(token);
+        String jsonUser = redisService.get(token);
         User user = JSON.parseObject(jsonUser, User.class);
         return Optional.ofNullable(user);
     }
@@ -60,10 +60,10 @@ public class UserAuthenticationService {
     /**
      * Logs out the given input {@code token}.
      *
-     * @param token for user to logout
+     * @param token for User to logout
      */
     public void logout(String token) {
         // Delete from redis
-        redis.delete(token);
+        redisService.delete(token);
     }
 }

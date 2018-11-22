@@ -1,5 +1,7 @@
 package me.icharm.orange.Constant.Common;
 
+import javax.persistence.criteria.CriteriaBuilder;
+
 /**
  * @author mylicharm
  * @email icharm.me@outlook.com
@@ -8,7 +10,8 @@ package me.icharm.orange.Constant.Common;
 public enum  UserStatusEnum {
 
     NORMAL(5, "正常"),
-    UNABLE(60, "不可用");
+    UNABLE(60, "不可用"),
+    SCANNED(65, "已扫码, 未授权");
 
     public final Integer code;
     public final String msg;

@@ -7,9 +7,10 @@ package me.icharm.orange.Constant.Common;
  */
 public enum GenericResponseEnum {
 
-    ERROR(1, "Error"),
+    ERROR(9999, "Error"),
     SUCCESS(0, "Successed"),
-    PARAM(2, "参数错误");
+    PARAM(9001, "参数错误"),
+    PARAM_NULL(9002, "关键参数为空");
 
     public final Integer code;
     public final String msg;

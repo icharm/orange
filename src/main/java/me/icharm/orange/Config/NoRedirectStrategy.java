@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 /**
  * implement redirectStrategy to no redirect in case of authentication failure
  *
@@ -17,6 +19,6 @@ public class NoRedirectStrategy implements RedirectStrategy {
 
     @Override
     public void sendRedirect(HttpServletRequest var1, HttpServletResponse var2, String var3) throws IOException {
-        var2.sendError(401);
+        var2.setStatus(UNAUTHORIZED.value());
     }
 }

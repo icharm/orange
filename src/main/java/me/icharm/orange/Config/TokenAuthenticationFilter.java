@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -41,7 +42,9 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
 
     @Override
     public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
-        final String param = ofNullable(request.getHeader(AUTHORIZATION)).orElse(request.getHeader("t"));
+        final String param = ofNullable(request.getHeader(AUTHORIZATION))
+                //.orElse(request.getHeader("token"))
+                .orElse(request.getParameter("token"));
 
         final String token = ofNullable(param)
                 .map(value -> removeStart(value, BEARER))
@@ -61,5 +64,14 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
     ) throws IOException, ServletException {
         super.successfulAuthentication(request, response, chain, auth);
         chain.doFilter(request, response);
+    }
+
+    @Override
+    public void unsuccessfulAuthentication(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException failed
+    ) throws IOException, ServletException {
+        super.unsuccessfulAuthentication(request, response, failed);
     }
 }
