@@ -2,10 +2,9 @@ package me.icharm.orange.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import me.icharm.orange.Model.Common.SystemParameter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import me.icharm.orange.Repository.Common.SystemParameterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!-- 上面xmlns:th、xmlns:layout很重要，分别为下面的th:href, layout:fragment等标签元素指定所属的命名空间 -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,viewport-fit=cover">
+    <title>洋葱酱</title>
+    <!-- 引入Css、js、image等静态资源时，路径是相对于resources/static，而且前面要带上/ -->
+    <link rel="stylesheet" th:href="@{/style/weui.min.css}"/>
+    <!--<link rel="stylesheet" href="./example.css"/>-->
+</head>
+<body ontouchstart>
+<div class="weui-toptips weui-toptips_warn js_tooltips">错误提示</div>
+
+<div class="container" id="container">
+    <!-- 定义一个可以在子页面重写的fragment -->
+    <div layout:fragment="content"></div>
+</div>
+
+<script th:src="@{/js/zepto.min.js}"></script>
+<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+<script src="https://res.wx.qq.com/open/libs/weuijs/1.0.0/weui.min.js"></script>
+<!--<script src="js/example.js"></script>-->
+<script>
+    // 下面是配置微信的JS-SDk，方便在微信里面使用一个特定的Api
+    // wx.config({
+    //     debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+    //     appId: '', // 必填，公众号的唯一标识
+    //     timestamp: '', // 必填，生成签名的时间戳
+    //     nonceStr: '', // 必填，生成签名的随机串
+    //     signature: '',// 必填，签名，见附录1
+    //     jsApiList: ['closeWindow'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+    // });
+</script>
+</body>
+</html>

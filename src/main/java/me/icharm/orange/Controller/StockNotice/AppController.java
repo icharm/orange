@@ -9,7 +9,7 @@ import me.icharm.orange.Model.Dto.JsonResponse;
 import me.icharm.orange.Model.Dto.StockData;
 import me.icharm.orange.Model.StockNotice.StockRule;
 import me.icharm.orange.Repository.StockNotice.StockRuleRepository;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -37,7 +37,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // non-authentication urls
     private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
-            new AntPathRequestMatcher("/common/**")
+            new AntPathRequestMatcher("/common/**"),
+            new AntPathRequestMatcher("/slogin/**"),
+            new AntPathRequestMatcher("/images/**"),
+            new AntPathRequestMatcher("/js/**"),
+            new AntPathRequestMatcher("/style/**"),
+            new AntPathRequestMatcher("/favicon.ico")
     );
 
     private static final RequestMatcher PROTECTED_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
@@ -57,10 +62,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(final WebSecurity web) {
+        // web.ignoring().antMatchers("/common/**", "/images/**", "/js/**", "/style/**", "/favicon.ico");
+        // or
         web.ignoring().requestMatchers(PUBLIC_URLS);
     }
 
-    @Override
+    /*@Override
     protected void configure(final HttpSecurity http) throws Exception {
         http
                 .sessionManagement()
@@ -81,6 +88,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable() // login base html form
                 .httpBasic().disable()
                 .logout().disable();
+    }*/
+
+    // No Sercuity, allow all url, use in devlopment.
+    @Override
+    protected void configure(final HttpSecurity http) throws Exception {
+        http
+                .sessionManagement()
+                .sessionCreationPolicy(STATELESS)
+                .and()
+                .authorizeRequests()
+                .antMatchers("/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated();
     }
 
     @Bean

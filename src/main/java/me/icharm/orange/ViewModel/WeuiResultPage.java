@@ -1,6 +1,11 @@
 package me.icharm.orange.ViewModel;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Map;
 
 /**
  * @author mylicharm
@@ -8,12 +13,13 @@ import lombok.Data;
  * @date 2018/11/21 17:40
  */
 @Data
+@Slf4j
 public class WeuiResultPage {
 
     /**
      * 视图模板路径
      */
-    public String path = "classpath:resources/templates/weui/result_page";
+    public static String path = "weui/result_fragment";
 
     /**
      * 图标
@@ -50,4 +56,21 @@ public class WeuiResultPage {
      */
     private String btnDefaultAction;
 
+    /**
+     * This object convert to ModelMap object.
+     *
+     * @return ModelMap
+     */
+    public ModelAndView modelAndView() {
+        try {
+            ModelAndView mv = new ModelAndView(WeuiResultPage.path);
+            // Object to map
+            Map<String, String> map = BeanUtils.describe(this);
+            mv.addAllObjects(map);
+            return mv;
+        } catch (Exception e) {
+            log.error("WeuiResultPage ViewModel Object convert to map error: " + e);
+            return null;
+        }
+    }
 }
