@@ -129,7 +129,12 @@ public class ScanLoginController extends RootController {
         // todo 测试用户取消授权的返回信息
         User user = codeToUserinfo(code);
         WeuiResultPage view = new WeuiResultPage();
-        if (UserStatusEnum.NORMAL.code.equals(user.getStatus())) {
+        if (user == null) {
+            qrcode.update(token, UserStatusEnum.REFUSED.code);
+            view.setIcon("warn");
+            view.setTitle("授权失败");
+            view.setContent("您拒绝了登录授权，如需授权，请关闭此页面后重新扫码。");
+        } else {
             // relogin user first.
             authentication.refresh(token, user);
             // update qrcode status.
@@ -137,10 +142,6 @@ public class ScanLoginController extends RootController {
             view.setIcon("success");
             view.setTitle("授权成功");
             view.setContent("小主人，欢迎光临，您可以关闭本页面了，（-：");
-        } else {
-            view.setIcon("warn");
-            view.setTitle("授权失败");
-            view.setContent("您拒绝了登录授权，如需授权，请关闭此页面后重新扫码。");
         }
         return view.modelAndView();
     }

@@ -3,8 +3,8 @@ package me.icharm.orange.Model.Common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import me.icharm.orange.Constant.Common.UserRoleEnum;
 import me.icharm.orange.Constant.Common.UserStatusEnum;
+import me.icharm.orange.Model.MsgForward.Mfuser;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -35,6 +35,9 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private Mfuser mfuser;
 
     /**
      * wechat openid
@@ -95,12 +98,12 @@ public class User implements UserDetails {
     @LastModifiedDate
     private Timestamp updatedAt;
 
-    {
-        // init block
-        // Add a default value to prevent errors when converting json strings.
-        // Authorities must be json string of List, otherwise get,set mothed cannot be processed.
-        this.setAuthorities(UserRoleEnum.GENERAL.code);
-    }
+//    {
+//        // init block
+//        // Add a default value to prevent errors when converting json strings.
+//        // Authorities must be json string of List, otherwise get,set mothed cannot be processed.
+//        this.addAuthoritie(UserRole.GENERAL);
+//    }
 
     @Override
     public String toString() {
@@ -143,19 +146,21 @@ public class User implements UserDetails {
         return authList;
     }
 
-    public void setAuthorities(String role) {
-        List<String> roleList = new ArrayList<>();
+    public void addAuthoritie(String role) {
+        List<SimpleGrantedAuthority> authList = new ArrayList<>();
         if (StringUtils.isBlank(this.authorities)) {
-            roleList.add(role);
-            this.authorities = JSON.toJSONString(roleList);
+            authList.add(new SimpleGrantedAuthority(role));
+            this.authorities = JSON.toJSONString(authList);
         } else {
-            roleList = JSON.parseArray(this.authorities, String.class);
+            authList = JSON.parseArray(this.authorities, SimpleGrantedAuthority.class);
             // If this role existed.
-            if(!roleList.contains(role)) {
-                // don't exist
-                roleList.add(role);
+            for(SimpleGrantedAuthority auth : authList) {
+                if (auth.getAuthority().equals(role))
+                    return;
             }
-            this.authorities = JSON.toJSONString(roleList);
+            // don't exist
+            authList.add(new SimpleGrantedAuthority(role));
+            this.authorities = JSON.toJSONString(authList);
         }
     }
 

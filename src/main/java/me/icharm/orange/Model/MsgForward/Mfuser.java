@@ -29,12 +29,14 @@ public class Mfuser {
     /**
      * User table 外键
      */
-    @ManyToOne(targetEntity = User.class)
-    private Long user;
+    @OneToOne(mappedBy = "mfuser", fetch = FetchType.LAZY)
+    private User user;
+
+    private String openid;
 
     private String secret;
-    private int todayCount;
-    private Long totalCount;
+    private int todayCount = 0;
+    private Long totalCount = 0L;
 
     @CreatedDate
     private Timestamp createdAt;

@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import me.icharm.orange.Model.Common.User;
 import me.icharm.orange.Repository.Common.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -74,5 +77,20 @@ public class UserAuthenticationService {
     public void logout(String token) {
         // Delete from redis
         redisService.delete(token);
+    }
+
+    /**
+     * Update user info of redis and authentication.
+     *
+     * @param user User
+     */
+    public void reAuth(User user) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String token = (String) authentication.getCredentials();
+        // updata redis data.
+        refresh(token, user);
+        // updata authentication.
+        authentication = new UsernamePasswordAuthenticationToken(user, token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

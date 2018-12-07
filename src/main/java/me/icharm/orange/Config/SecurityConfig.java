@@ -57,6 +57,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(final AuthenticationManagerBuilder auth) {
+        // prevent spring security remove crdentials info after authentication.
+        auth.eraseCredentials(false);
         auth.authenticationProvider(provider);
     }
 
@@ -67,7 +69,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().requestMatchers(PUBLIC_URLS);
     }
 
-    /*@Override
+    @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http
                 .sessionManagement()
@@ -88,21 +90,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable() // login base html form
                 .httpBasic().disable()
                 .logout().disable();
-    }*/
+    }
 
     // No Sercuity, allow all url, use in devlopment.
-    @Override
-    protected void configure(final HttpSecurity http) throws Exception {
-        http
-                .sessionManagement()
-                .sessionCreationPolicy(STATELESS)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated();
-    }
+//    @Override
+//    protected void configure(final HttpSecurity http) throws Exception {
+//        http
+//                .sessionManagement()
+//                .sessionCreationPolicy(STATELESS)
+//                .and()
+//                .authorizeRequests()
+//                .antMatchers("/**")
+//                .permitAll()
+//                .anyRequest()
+//                .authenticated();
+//    }
 
     @Bean
     TokenAuthenticationFilter restAuthenticationFilter() throws Exception {
