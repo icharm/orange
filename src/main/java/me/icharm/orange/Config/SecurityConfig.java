@@ -37,7 +37,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // non-authentication urls
     private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
-            new AntPathRequestMatcher("/common/**")
+            new AntPathRequestMatcher("/common/**"),
+            new AntPathRequestMatcher("/slogin/**"),
+            new AntPathRequestMatcher("/images/**"),
+            new AntPathRequestMatcher("/js/**"),
+            new AntPathRequestMatcher("/style/**"),
+            new AntPathRequestMatcher("/favicon.ico")
     );
 
     private static final RequestMatcher PROTECTED_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
@@ -52,35 +57,53 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(final AuthenticationManagerBuilder auth) {
+        // prevent spring security remove crdentials info after authentication.
+        auth.eraseCredentials(false);
         auth.authenticationProvider(provider);
     }
 
     @Override
     public void configure(final WebSecurity web) {
+        // web.ignoring().antMatchers("/common/**", "/images/**", "/js/**", "/style/**", "/favicon.ico");
+        // or
         web.ignoring().requestMatchers(PUBLIC_URLS);
     }
 
+//    @Override
+//    protected void configure(final HttpSecurity http) throws Exception {
+//        http
+//                .sessionManagement()
+//                .sessionCreationPolicy(STATELESS)
+//                .and()
+//                .exceptionHandling()
+//                // this entry point handles when you request a protected page and you are not yet
+//                // authenticated
+//                .defaultAuthenticationEntryPointFor(forbiddenEntryPoint(), PROTECTED_URLS)
+//                .and()
+//                .authenticationProvider(provider)
+//                .addFilterBefore(restAuthenticationFilter(), AnonymousAuthenticationFilter.class)
+//                .authorizeRequests()
+//                .anyRequest()
+//                .authenticated()
+//                .and()
+//                .csrf().disable()
+//                .formLogin().disable() // login base html form
+//                .httpBasic().disable()
+//                .logout().disable();
+//    }
+
+    // No Sercuity, allow all url, use in devlopment.
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http
                 .sessionManagement()
                 .sessionCreationPolicy(STATELESS)
                 .and()
-                .exceptionHandling()
-                // this entry point handles when you request a protected page and you are not yet
-                // authenticated
-                .defaultAuthenticationEntryPointFor(forbiddenEntryPoint(), PROTECTED_URLS)
-                .and()
-                .authenticationProvider(provider)
-                .addFilterBefore(restAuthenticationFilter(), AnonymousAuthenticationFilter.class)
                 .authorizeRequests()
+                .antMatchers("/**")
+                .permitAll()
                 .anyRequest()
-                .authenticated()
-                .and()
-                .csrf().disable()
-                .formLogin().disable()
-                .httpBasic().disable()
-                .logout().disable();
+                .authenticated();
     }
 
     @Bean

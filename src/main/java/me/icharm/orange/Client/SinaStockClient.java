@@ -1,7 +1,7 @@
 package me.icharm.orange.Client;
 
 import me.icharm.orange.Model.Dto.StockData;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

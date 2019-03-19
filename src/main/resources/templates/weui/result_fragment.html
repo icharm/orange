@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/weui/layout}">
+<head>
+    <title th:text="${title}">结果页</title>
+    <!--每页单独引入的文件在这写↓-->
+    <!--<script th:src="@{../js/alert.js}"></script>-->
+</head>
+<body>
+<div layout:fragment="content">
+    <!--在这里写入页面内容↓-->
+<div id="content">
+    <div class="page">
+        <div class="weui-msg">
+            <div class="weui-msg__icon-area"><i th:class="'weui-icon_msg weui-icon-'+${icon}" ></i></div>
+            <div class="weui-msg__text-area">
+                <h2 class="weui-msg__title" th:text="${title}">操作成功</h2>
+                <p class="weui-msg__desc" th:text="${content}"></p>
+            </div>
+            <div class="weui-msg__opr-area">
+                <p class="weui-btn-area">
+                    <a th:href="'javascript:'+${btnPrimaryAction}" class="weui-btn weui-btn_primary" th:text="${btnPrimary}">确定</a>
+                    <a th:href="'javascript:'+${btnDefaultAction}" class="weui-btn weui-btn_default" th:text="${btnDefault}">取消</a>
+                </p>
+            </div>
+            <div class="weui-msg__extra-area">
+                <div class="weui-footer">
+                    <p class="weui-footer__links">
+                        <a href="javascript:void(0);" class="weui-footer__link">ICHARM</a>
+                    </p>
+                    <p class="weui-footer__text">Copyright &copy; 2018 icharm.me</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

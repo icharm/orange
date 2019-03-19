@@ -21,7 +21,7 @@ public class SystemService {
      *
      * @return string
      */
-    public String rootPathOfServer() {
+    public String serverAddress() {
         return "http://" + environment.getProperty("server.address");
     }
 }

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 /**
- * TokenAuthenticationProvider is responsible of finding the user by it’s authentication token.
+ * TokenAuthenticationProvider is responsible of finding the User by it’s authentication token.
  *
  * @author mylicharm
  * @email icharm.me@outlook.com
@@ -40,6 +40,6 @@ public class TokenAuthenticationProvider extends AbstractUserDetailsAuthenticati
                 .ofNullable(token)
                 .map(String::valueOf)
                 .flatMap(auth::findByToken)
-                .orElseThrow(() -> new UsernameNotFoundException("Cannot find user with authentication token=" + token));
+                .orElseThrow(() -> new UsernameNotFoundException("Cannot find User with authentication token=" + token));
     }
 }
