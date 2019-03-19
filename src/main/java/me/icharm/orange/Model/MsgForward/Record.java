@@ -24,13 +24,11 @@ public class Record {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    /**
-     * User table 外键
-     */
-    @ManyToOne(targetEntity = User.class)
-    private Long user;
+    @ManyToOne
+    private Mfuser mfuser;
 
     private String content;
+    private String hashCode;
     private String status;
 
     @CreatedDate

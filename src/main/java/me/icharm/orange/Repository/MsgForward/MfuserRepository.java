@@ -13,4 +13,6 @@ public interface MfuserRepository extends CrudRepository<Mfuser, Long> {
 
     Mfuser findByOpenid(String openid);
 
+    Mfuser findMfuserBySecret(String secret);
+
 }

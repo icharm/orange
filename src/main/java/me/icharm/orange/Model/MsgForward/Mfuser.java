@@ -10,6 +10,7 @@ import javax.persistence.*;
 import me.icharm.orange.Model.Common.User;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 
 /**
  * @author mylicharm
@@ -32,6 +33,10 @@ public class Mfuser {
     @OneToOne(mappedBy = "mfuser", fetch = FetchType.LAZY)
     private User user;
 
+    @OneToMany(mappedBy = "mfuser")
+    private Collection<Record> records;
+
+    @Column(unique = true)
     private String openid;
 
     private String secret;
